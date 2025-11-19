@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>AI TingLing Broadcast — AutoReload Edition</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+    }
+    #fadeLayer {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: black;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.8s ease;
+    }
+</style>
+
+</head>
+<body>
+
+<div id="fadeLayer"></div>
+
+<script>
+// ----------------------------------------------------------
+// 1) WebGL 엔진 초기화 (오봉산 기존 콘솔 엔진 그대로 들어갈 위치)
+// ----------------------------------------------------------
+
+// 여기에 기존 Broadcast v1.1 엔진 코드 넣어드릴 예정
+// (오봉산이 확인 후 원하시면 바로 합쳐서 완전체 제작해드립니다)
+
+
+// ----------------------------------------------------------
+// 2) Auto-Reload 기능 (로컬 파일 교체 시 자동으로 재로드)
+// ----------------------------------------------------------
+
+// 파일의 수정 시간을 체크해서 변경되면 자동 새로고침
+let lastModified = null;
+
+async function checkFileUpdate() {
+    try {
+        const response = await fetch(window.location.href + "?cache=" + Math.random(), {
+            method: "HEAD"
+        });
+
+        const newModified = response.headers.get("Last-Modified");
+
+        if (lastModified === null) {
+            lastModified = newModified;
+        } else if (newModified !== lastModified) {
+            // 페이드 아웃 후 자동 재로드
+            document.getElementById("fadeLayer").style.opacity = 1;
+            setTimeout(() => {
+                window.location.reload();
+            }, 600);
+        }
+    } catch (e) {
+        console.log("Auto-reload check failed:", e);
+    }
+}
+
+// 3초마다 파일 갱신 확인
+setInterval(checkFileUpdate, 3000);
+
+
+// ----------------------------------------------------------
+// 3) WebGL/Audio 오류 발생 시 자동 재로드 (엔진 충돌 보호)
+// ----------------------------------------------------------
+window.addEventListener("error", (e) => {
+    console.log("Engine Error Detected → Auto Reload", e);
+    window.location.reload();
+});
+
+</script>
+
+</body>
+</html>
